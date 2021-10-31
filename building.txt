@@ -1,0 +1,8 @@
+build command:
+
+C:\Users\alexa\AppData\Roaming\Python\Python37\Scripts\pyinstaller.exe --onefile --windowed --add-data "insta.ico;." --icon=insta.ico --clean .\instaloader_gui.py
+
+
+to get working icon in explorer/taskbar:
+
+copy exe and paste
