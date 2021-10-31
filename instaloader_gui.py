@@ -67,7 +67,8 @@ def write_url(url):
    """
    Write URL to ini file because I can't fucking get it to work
 
-   I tried to generate usable URLs from the scale events using lambda functions but couldn't get it to work
+   I tried to assign the URL to the url variable from the scale events using lambda functions but I
+   couldn't get it to work because I was unable to access the url variable from inside the lambda function
    So just write the url to the file and pass it to the download function from there I guess
    """
    config["URL"] = {"url":url}
@@ -92,7 +93,7 @@ def request(session_id, post_url=""):
       download_label.grid(row=4, column=1, columnspan=2, pady=10, sticky="W") # Put the label in place next to the download button
       return
 
-   elif "https://instagram.com/" not in post_url: # If a non-Instagram URL is entered
+   elif "https://www.instagram.com/" not in post_url: # If a non-Instagram URL is entered
       download_label = tk.Label(root, font="Arial 11", text="Please specify an Instagram URL", fg="red")
       download_label.grid(row=4, column=1, columnspan=2, pady=10, sticky="W") # Put the label in place next to the download button
       return
