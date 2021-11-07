@@ -1,9 +1,7 @@
 import os
 import sys
-from time import sleep
 import configparser
-import requests
-import urllib
+import requests # Maybe replace the GET request of the post with a urllib request to make the exe lighter?
 from urllib.request import urlretrieve
 import tkinter as tk
 from tkinter import filedialog
@@ -94,6 +92,7 @@ def request(session_id, post_url=""):
       return
 
    elif "https://www.instagram.com/" not in post_url: # If a non-Instagram URL is entered
+      download_label.destroy() # Destroy the default download label and replace it with error message
       download_label = tk.Label(root, font="Arial 11", text="Please specify an Instagram URL", fg="red")
       download_label.grid(row=4, column=1, columnspan=2, pady=10, sticky="W") # Put the label in place next to the download button
       return
@@ -109,6 +108,12 @@ def request(session_id, post_url=""):
                video_urls.append(item.replace('"video_url":"', '').replace("\\", "/").replace("/u0026", "&")) # Format urls
 
    # print(video_urls)
+   if not video_urls:
+      download_label.destroy() # Destroy the default download label and replace it with error message
+      download_label = tk.Label(root, font="Arial 11", text="No video detected", fg="red")
+      download_label.grid(row=4, column=1, columnspan=2, pady=10, sticky="W") # Put the label in place next to the download button
+      return
+
    if len(video_urls) > 1: # More than 1 video in post
       download_label.destroy()
       post_url_entry.grid_forget()
@@ -123,11 +128,8 @@ def request(session_id, post_url=""):
       video_choice_slider.grid(row=4, column=1)
       back_button = tk.Button(root, text="Back", font="Arial 12", width=10, command=go_back)
       back_button.grid(row=4, column=2, sticky="W")
+      download_button.destroy() # Remove the old download button and replace it with the multiple video mode button
 
-
-   
-      download_button.destroy()
-      # print(video_urls)
       # Define variables to pass into the download function
       
       
@@ -147,9 +149,6 @@ def request(session_id, post_url=""):
       download_button = tk.Button(root, text="Download", font="Arial 14 bold", width=11, command= lambda: download(url=config["URL"]["url"], output=config["MAIN"]["output_path"], filename=output_filename_entry.get().replace(".mp4", ""))) 
       download_button.grid(row=4, column=0, padx=10, pady=10, sticky="W")
          
-         
-            
-         # download(url, output, filename)
    else: # Only 1 video
       url = video_urls[0]
       download(url=url, output=output_folder_entry.get(), filename=output_filename_entry.get())
@@ -173,10 +172,12 @@ def download(url, output, filename=""):
 
    if not filename: # No filename specified, use default filename
       urlretrieve(url, output + url[55:end]) 
+      
       try: # Multiple videos mode
          video_choice_label.destroy()
          video_choice_label = tk.Label(root, font="Arial 11", text=f"Saved {url[55:end]} to {output}", wraplength=320)
          video_choice_label.grid(row=3, column=1, pady=(20,0), sticky="N")
+      
       except: # Single video mode
          download_label.destroy()
          # print(f"Saved {url[55:end]} to {output}")
@@ -185,10 +186,12 @@ def download(url, output, filename=""):
 
    else: # Save video to specified filename
       urlretrieve(url, output + filename + ".mp4") 
+
       try: # Multiple videos mode
          video_choice_label.destroy()
          video_choice_label = tk.Label(root, font="Arial 11", text=f"Saved {filename}.mp4 to {output}", wraplength=320)
          video_choice_label.grid(row=3, column=1, pady=(20,0), sticky="N")
+
       except: # Single video mode
          download_label.destroy()
          print(f"Saved {filename}.mp4 to {output}")
@@ -215,7 +218,7 @@ except:
    pass
 root.minsize(600,190)
 root.maxsize(600,250)
-root.columnconfigure((0,1,2), weight=1) # Configure the 3 columns
+root.columnconfigure((0,1,2), weight=1) # Configure the 3 column structure
 
 # Post URL
 post_url_label = tk.Label(root, font="Arial 12 bold", text="Post URL", padx=10, pady=5)
@@ -225,9 +228,9 @@ post_url_entry.grid(row=0, column=1, sticky="W", pady=(15,0))
 
 # Output folder
 tk.Label(root, font="Arial 12 bold", text="Output folder", padx=10, pady=5).grid(row=1, column=0, sticky="W")
-ini_output_folder = config["MAIN"]["output_path"]
+saved_output_folder = config["MAIN"]["output_path"]
 output_folder_entry = tk.Entry(root, font="Arial 12", width=36)
-output_folder_entry.insert(0, ini_output_folder)
+output_folder_entry.insert(0, saved_output_folder)
 output_folder_entry.grid(row=1, column=1, sticky="W")
 folder_select_button = tk.Button(root, text="Select folder", font="Arial 12", width=10, command=browse)
 folder_select_button.grid(row=1, column=2, sticky="W")
@@ -237,7 +240,6 @@ tk.Label(root, font="Arial 12 bold", text="Output filename", padx=10, pady=5).gr
 output_filename_entry = tk.Entry(root, font="Arial 12", width=36)
 output_filename_entry.grid(row=2, column=1, sticky="W")
 tk.Label(root, font="Arial 12 bold", text=".mp4",).grid(row=2, column=2, sticky="W")
-# tk.Label(root, font="Arial 11", text="Succesfully saved {filename} to {output_folder}", wraplength=500).grid(row=3, column=1, columnspan=2, pady=10, sticky="W") # This needs to go at the end of the download function
 
 # Download button and label
 session_id = config["MAIN"]["session_id"] # Session ID to pass to the request function
@@ -246,14 +248,5 @@ download_button.grid(row=4, column=0, padx=10, pady=10, sticky="W")
 download_label = tk.Label(root, font="Arial 11", text="Instaloader GUI v1.0")
 download_label.grid(row=4, column=1, columnspan=2, pady=10, sticky="W") # Put the label in place next to the download button
 
-# download_label.destroy()
-# download_label = tk.Label(root, font="Arial 11", text="Saved test.mp4 to test", wraplength=320)
-# download_label.grid(row=4, column=1, columnspan=2, pady=10, sticky="W")
-
-
-
-
-
-# directory_dialog.grid(row=5, column=1)
 root.mainloop()
 
